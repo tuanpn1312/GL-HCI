@@ -20,6 +20,8 @@ const productLoveRoute = require("../routes/product_love.route");
 const feedbackRoute = require("../routes/feedback.route");
 const orderRoute = require("../routes/order.route");
 const dbRoute = require("../routes/db.route");
+const paymentRoute = require("../routes/payment.route");
+const chartRoute = require("../routes/chart.route");
 
 const Router = express.Router();
 
@@ -43,5 +45,7 @@ Router.use("/love-products", productLoveRoute);
 Router.use("/feedbacks", feedbackRoute);
 Router.use("/orders", orderRoute);
 Router.use("/dbs", dbRoute);
+Router.use("/payments", paymentRoute);
+Router.use("/charts", chartRoute);
 
 module.exports = Router;

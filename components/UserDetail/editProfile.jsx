@@ -79,7 +79,7 @@ export default function  EditProfile ({isModalVisible,form,handleCancel,handleOk
                                         },
                                     ]}
                                 >
-                                    <Select defaultValue="" value={selectDistrict?.codename || ""} disabled={selectedAddress?.codename && districtVN?.length !== 0 ? false : true}
+                                    <Select defaultValue="" value={selectedAddress?.codename || selectDistrict?.codename || ""} disabled={selectedAddress?.codename && districtVN?.length !== 0 ? false : true}
                                           onChange={handleSelectDistrict}>
                                                 {/* <Option value={selectDistrict}>{selectDistrict}</Option>  */}
                                         { districtVN.map(district => {

@@ -13,8 +13,9 @@ export default function CardProduct({ item, typeName }) {
     const typeToKey = (removeUnicode(typeName)).toLowerCase().replaceAll(' ', '');
     const router = useRouter();
     const [orders, setOrders] = useRecoilState(orderState)
+    const key = "fetching";
+
     const setLoveProduct = async () => {
-        const key = "fetching";
         message.loading({ content: "Đang thêm ...", key })
         try {
             const response = await apiService.post('/love-products', { product_id: item.product_id, type_id: item.type_id })
@@ -23,6 +24,18 @@ export default function CardProduct({ item, typeName }) {
             message.error({ content: error.response.data.message, key })
         }
     }
+
+    const addToCart = (item) => {
+        if (orders.find(itemOrder => itemOrder.product_id === item.product_id)) {
+            message.error({ content: 'Đã thêm giỏ hàng', key })
+        } else if (parseInt(item.amount) === 0) {
+            message.error({ content: 'Sản phẩm đã hết hàng', key })
+        } else {
+            setOrders((prev) => [...prev, { ...item, soluong: 1 }])
+            message.success({ content: "Thêm thành công", key })
+        }
+    }
+
     return (
         <Card title={item.name} hoverable style={{ width: 300 }}
         >
@@ -67,10 +80,9 @@ export default function CardProduct({ item, typeName }) {
                     <Tooltip title="Thêm vào giỏ hàng">
                         <div className=" right-0 text-gray-400  hover:text-gray-700"
                             onClick={() => {
-                                console.log('test')
-                                setOrders({ ...item, keyProduct: typeToKey })
+                                addToCart({ ...item, keyProduct: typeToKey })
                             }}
-                        ><ShoppingCartOutlined style={{ fontSize: 30 }} /></div>
+                        ><ShoppingCartOutlined style={{ fontSize: 18 }} /></div>
                     </Tooltip>
 
                 </div>
@@ -86,10 +98,9 @@ export default function CardProduct({ item, typeName }) {
                     <Tooltip title="Thêm vào giỏ hàng">
                         <div className=" right-0 text-gray-400  hover:text-gray-700"
                             onClick={() => {
-                                console.log('test')
-                                setOrders({ ...item, keyProduct: typeToKey })
+                                addToCart({ ...item, keyProduct: typeToKey })
                             }}
-                        ><ShoppingCartOutlined style={{ fontSize: 30 }} /></div>
+                        ><ShoppingCartOutlined style={{ fontSize: 18 }} /></div>
                     </Tooltip>
 
                 </div>

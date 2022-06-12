@@ -7,13 +7,13 @@ import { userState } from '../../store/userState'
 
 export default function HomePage() {
     const user = useRecoilValue(userState);
-    useEffect(() => {
-        if (user) {
-            if (user.role !== "admin") {
-                Router.push('/loginadmin');
-            }
-        }
-    }, [user])
+    // useEffect(() => {
+    //     if (user) {
+    //         if (user.role !== "admin") {
+    //             Router.push('/loginadmin');
+    //         }
+    //     }
+    // }, [user])
     return (
         <>
             <Head>

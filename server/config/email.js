@@ -1,24 +1,27 @@
 const nodemailer = require("nodemailer");
-const smtpTransport = require("nodemailer-smtp-transport");
 
-const supportEmailTransport = nodemailer.createTransport(
-  smtpTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    secure: true,
-    auth: {
-      user: "botgearlap@gmail.com",
-      pass: "DucManh1402$",
-    },
-  })
-);
+const supportEmailTransport = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "botgearlap@gmail.com",
+    pass: "ewanarenxzpqrmwg",
+  },
+});
 
 module.exports.sendSupportEmail = async (emailData) => {
-  await supportEmailTransport.sendMail({
-    from: '"Gearlap - Support" <botgearlap@gmail.com>',
-    to: emailData.to,
-    subject: emailData.subject,
-    html: emailData.body,
-  });
-  console.log("sent");
+  await supportEmailTransport.sendMail(
+    {
+      from: '"Gearlap - Support" <botgearlap@gmail.com>',
+      to: emailData.to,
+      subject: emailData.subject,
+      html: emailData.body,
+    },
+    function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    }
+  );
 };

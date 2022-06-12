@@ -7,7 +7,7 @@ const Router = express.Router();
 
 Router.post("/", authMiddleware.getToken, orderService.orderProduct);
 Router.post("/update", orderService.updateOrderProduct);
-Router.get("/", orderService.getAllOrder);
+Router.get("/", authMiddleware.authenticateToken, orderService.getAllOrder);
 Router.get(
   "/user",
   authMiddleware.authenticateToken,

@@ -109,3 +109,19 @@ module.exports.deleteCategory = async (req, res, next) => {
     return res.status(400).json({ message: e.message });
   }
 };
+
+module.exports.getFieldCategoryType = async (req, res, next) => {
+  try {
+    let result = await db.getResultList(
+      `select column_name from INFORMATION_SCHEMA.COLUMNS where table_name = 'laptop' and column_name ~ '^(?!.*(_id)).*$'`,
+      []
+    );
+
+    result.push({ column_name: "product_id" });
+
+    res.status(200).json(result);
+  } catch (e) {
+    console.log(e.message);
+    return res.status(400).json({ message: e.message });
+  }
+};

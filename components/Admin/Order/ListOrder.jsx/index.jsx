@@ -1,92 +1,115 @@
-import React, { useState,useEffect } from 'react'
-import { Table, Button , Tooltip } from 'antd';
+import React, { useState, useEffect } from 'react'
+import { Table, Button, Tooltip, Space, Popconfirm, Select, message } from 'antd';
+import { CloseOutlined, CheckOutlined } from '@ant-design/icons';
+import ModalDetailOrder from '../../../StatusOrder/ModalDetailOrder';
+import moment from 'moment';
+const { Option } = Select;
+
+export default function ListOrderAdmin({ changeStatus, history, tab }) {
+    const [modalDetail, setModalDetail] = useState(false);
 
 
-export default function ListOrderAdmin( {tab}){
+    const listTab = [
+        {
+            tab: 'waiting',
+            title: 'Chờ xác nhận',
+        },
+        {
+            tab: 'delivery',
+            title: 'Đang giao',
+        },
+        {
+            tab: 'payment',
+            title: 'Đã thanh toán',
+        }
+    ]
+
+    const currentTabIndex = listTab.findIndex(item => item.tab === tab);
 
     const columns = [
         {
             title: 'Mã đơn hàng',
-            dataIndex: 'ma',
-            key: 'ma',
-            render: (text) => <a>{text}</a>,
+            dataIndex: 'order_id',
+            key: 'order_id',
+            render: (text, record) => <a onClick={() => setModalDetail({ ...record, tab })}>{text.split('-').at(-1)}</a>,
         },
         {
             title: 'Tên khách hàng',
             dataIndex: 'name',
             key: 'name',
-            render: (text) => <a>{text}</a>,
+            render: (text) => <span>{text}</span>,
         },
-    
+
         {
             title: 'Mail',
-            dataIndex: 'price_now',
-            key: 'price_now',
-            render: (text) => <a>{text}</a>,
+            dataIndex: 'email',
+            key: 'email',
+            render: (text) => <span>{text}</span>,
         },
- 
         {
             title: 'Số điện thoại',
-            dataIndex: 'price_now',
-            key: 'price_now',
-            render: (text) => <a>{text}</a>,
+            dataIndex: 'phone',
+            key: 'phone',
+            render: (text) => <span>{text}</span>,
         },
         {
-            title: 'Trạng thái',
-            key: 'status',
-            dataIndex: 'status',
-            render: status => (
-                <>
-                    {/* <Tag color={status==="true"? 'green' :  'volcano'} >
-                        {status==="true" ? "Hoạt động" : "Tạm ngừng"}
-                    </Tag> */}
-                 {status==="true" && <Tag color={'green' } >
-                       Hoạt động
-                    </Tag>}
-                    {status==="false" && <Tag color={'volcano' } >
-                    Tạm ngừng
-                    </Tag>}
-                </>
-            ),
+            title: 'Thời gian',
+            dataIndex: 'time',
+            key: 'time',
+            render: (_, record) => <span>{moment(record[`${tab}_time`]).format("DD/MM/YY - HH:mm")}</span>,
         },
         {
-            title: '',
+            title: 'Hành động',
             key: 'delete',
-            render: (text, record) => (
-                <Space size="middle">
-                   
-                  <Popconfirm
-                        title={ `link "${record.link}" bạn chắc muốn xóa?`}
-                        // onConfirm={() => deleteBanner(record)}
-                        okText={'Xóa'}
-                        cancelText="Hủy"
-                    >
-                       <CloseOutlined style={{color:"red"}} />
-                    </Popconfirm>
-                 
-                 
-                </Space>
-            ),
-      }
+            render: (text, record) => {
+                if (['payment', 'cancel'].includes(tab)) return;
+                return (
+                    <Space size="middle">
 
-      ];
+                        <Popconfirm
+                            title={`Chuyển sang trạng thái "${listTab[currentTabIndex + 1]?.title}"`}
+                            onConfirm={() => changeStatus(listTab[currentTabIndex + 1]?.tab, record.order_id)}
+                            okText={'Ok'}
+                            cancelText="Hủy"
+                        >
+                            <CheckOutlined style={{ color: "green" }} />
+                        </Popconfirm>
+                        <Popconfirm
+                            title={`Chắc chắn hủy?`}
+                            onConfirm={() => changeStatus('cancel', record.order_id)}
+                            okText={'Hủy'}
+                            cancelText="Quay lại"
+                        >
+                            <CloseOutlined style={{ color: "red" }} />
+                        </Popconfirm>
 
-    return(
-        <Table className=''
-        onRow={(record, rowIndex) => {
-        return {
-        onClick: () => {
-        // setShowModalEdit(true)
-        // setProductDetail(record)
+
+                    </Space>
+                )
+            },
+        }
+
+    ];
+
+    return (
+        <>
+            <Table className=''
+                onRow={(record, rowIndex) => {
+                    return {
+                        onClick: () => {
+                            // setShowModalEdit(true)
+                            // setProductDetail(record)
+                        }
+                    }
                 }
-            }
-        }
-        }
-          columns={columns} 
-        //   dataSource={products}
-          pagination={{ defaultPageSize: 6 }}
-          scroll={{ y: 500 }} 
-        />
+                }
+                columns={columns}
+                dataSource={history}
+                pagination={false}
+                scroll={{ y: 500 }}
+            />
+            {modalDetail && <ModalDetailOrder modalDetail={modalDetail} setModalDetail={setModalDetail} role="admin" />}
 
+        </>
     )
 }

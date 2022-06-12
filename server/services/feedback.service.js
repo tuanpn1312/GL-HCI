@@ -6,9 +6,25 @@ module.exports.createFeedback = async (req, res, next) => {
     const created_at = moment().format("YYYY-MM-DD HH:mm:ss");
     const updated_at = moment().format("YYYY-MM-DD HH:mm:ss");
 
+    const checkExist = await db.getFirstResult(
+      `select name, order_id from
+      (select user_id, order_id, product_id from feedback where order_id = $1 and user_id = $2 and product_id = $3) as tbl1
+      left join
+      (select name, product_id from product where product_id = $3) as tbl2
+      on tbl1.product_id = tbl2.product_id`,
+      [req.body.order_id, req.user.user.id, req.body.product_id]
+    );
+
+    if (checkExist)
+      return res.status(400).json({
+        message: `Bạn đã đánh giá sản phẩm ${
+          checkExist.name
+        } đơn hàng ${req.body.order_id.split("-").at(-1)} này rồi`,
+      });
+
     const newFeedback = await db.query(
-      `insert into feedback (user_id, content, created_at, updated_at, product_id, star)
-            values ($1, $2, $3, $4, $5, $6) returning *`,
+      `insert into feedback (user_id, content, created_at, updated_at, product_id, star, order_id)
+            values ($1, $2, $3, $4, $5, $6, $7) returning *`,
       [
         req.user.user.id,
         req.body.content,
@@ -16,6 +32,7 @@ module.exports.createFeedback = async (req, res, next) => {
         updated_at,
         req.body.product_id,
         req.body.star,
+        req.body.order_id,
       ]
     );
 

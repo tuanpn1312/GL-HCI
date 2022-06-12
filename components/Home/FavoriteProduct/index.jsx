@@ -15,6 +15,8 @@ const { Option, OptGroup } = Select;
 export default function Favorite() {
     const router = useRouter();
     const [products, setProducts] = useState([]);
+    const [search, setSearch] = useState('');
+    const [result, setResult] = useState([]);
     const [filter, setFilter] = useState('');
     const categories = useRecoilValue(categoryState);
     const key = "fetching";
@@ -74,6 +76,14 @@ export default function Favorite() {
     useEffect(() => {
         getLoveProducts();
     }, [])
+
+    useEffect(() => {
+        if (search) {
+            setResult(products.filter(item => removeUnicode(item.name).toLowerCase().includes(removeUnicode(search).toLowerCase())));
+        } else {
+            setResult(products)
+        }
+    }, [products, search])
 
     const columns = [
         {
@@ -159,18 +169,23 @@ export default function Favorite() {
                     <Title level={3} className="p-5" >Sản phẩm yêu thích</Title>
                 </div>
 
-                <Select className='my-2'
-                    defaultValue=""
-                    value={filter}
-                    // value={['all', 'price_asc', 'price_desc'].includes(filter) ? filter : 'all'} 
-                    style={{ width: 200 }}
-                    onChange={handleChange}
-                >
-                    <Option value={''}>---Chọn loại---</Option>
-                    {categories.map(item => <Option value={item.id}>{item.name}</Option>
-                    )}
+                <div className='flex items-center space-x-4'>
+                    <Select className='my-2'
+                        defaultValue=""
+                        value={filter}
+                        // value={['all', 'price_asc', 'price_desc'].includes(filter) ? filter : 'all'} 
+                        style={{ width: 200 }}
+                        onChange={handleChange}
+                    >
+                        <Option value={''}>---Chọn loại---</Option>
+                        {categories.map(item => <Option value={item.id}>{item.name}</Option>
+                        )}
 
-                </Select>
+                    </Select>
+                    <Input.Search placeholder="Tìm theo tên sản phẩm..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 400 }} />
+                </div>
+
+
                 {/* <AddProduct deleteImage={deleteImage} handleChangeImage={handleChangeImage} sendPic={sendPic} onFinishFailed={onFinishFailed} isModalAddProduct={isModalAddProduct} handleCancelAddProduct={handleCancelAddProduct} handleaddProduct={handleaddProduct} categories={categories} brands={brands} /> */}
                 <Table
                     onRow={(record, rowIndex) => {
@@ -183,8 +198,8 @@ export default function Favorite() {
                     }
                     }
 
-                    columns={columns} dataSource={products}
-                    pagination={{ defaultPageSize: 6 }}
+                    columns={columns} dataSource={result}
+                    pagination={false}
                     scroll={{ y: 500 }} />
 
             </div>

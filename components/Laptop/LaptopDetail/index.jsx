@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Typography, Carousel, Button, Spin } from "antd";
+import { Row, Col, Typography, Carousel, Button, Spin, message } from "antd";
 const { Title, Link } = Typography;
 import { FireOutlined, BorderOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import DefaultLayout from "../../../layouts/Default";
@@ -10,6 +10,8 @@ import Body1Detail from "./Body1";
 import Description from "./Description";
 import Evaluate from "./Evaluate";
 import { useRouter } from "next/router";
+import { useRecoilState } from "recoil";
+import { orderState } from "../../../store/orderState";
 
 export default function LaptopDetail() {
     const [banners, setBanners] = useState([]);
@@ -17,7 +19,23 @@ export default function LaptopDetail() {
     const [product, setProduct] = useState({});
     const [description, setDescription] = useState({});
     const [feedbacks, setFeedbacks] = useState({});
+    const [orders, setOrders] = useRecoilState(orderState)
+
     const router = useRouter();
+
+    const key = 'fetching';
+
+    const addToCart = (item) => {
+        if (orders.find(itemOrder => itemOrder.product_id === item.product_id)) {
+            message.error({ content: 'Sản phẩm đã có trong giỏ hàng', key })
+        } else if (parseInt(item.amount) === 0) {
+            message.error({ content: 'Sản phẩm đã hết hàng', key })
+        } else {
+            setOrders((prev) => [...prev, { ...item, soluong: 1 }])
+            message.success({ content: "Thêm thành công", key })
+        }
+    }
+
     const getDetailProduct = async (product_id) => {
         try {
             const response = await apiService.get(`/products/detail?product_id=${product_id}`)
@@ -62,7 +80,7 @@ export default function LaptopDetail() {
         <DefaultLayout>
             {product.product_id && <div className="flex flex-col m-6 bg-white
             rounded-lg">
-                <Body1Detail product={product} description={description} />
+                <Body1Detail addToCart={addToCart} product={product} description={description} />
                 <div className="text-center my-4 text-xl font-normal" style={{ fontFamily: "muli,sans-serif" }}>
                     <div className="inline-block  mr-10"
                     >
@@ -99,7 +117,7 @@ export default function LaptopDetail() {
                     </div>
                 </div>
                 {tab === "thongtin" && <div className="flex justify-center">
-                    <iframe width="50%" height="600" 
+                    <iframe width="50%" height="600"
                         src={product.link?.split('"').find(item => item.includes('docs'))}></iframe>
                 </div>}
                 {tab === "mo-ta" && <Description description={description} />}

@@ -6,7 +6,7 @@ const apiService = axios.create({
     baseURL: "/api",
 
     headers: {
-        Authorization: `Bearer ${Cookies.get("bkcookie")}`,
+        Authorization: Cookies.get("glcookie") ? `Bearer ${Cookies.get("glcookie")}` : '',
     },
 });
 

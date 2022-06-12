@@ -4,12 +4,13 @@ import Router from 'next/router';
 import { Layout, Menu, Input, Button, Breadcrumb, Badge, BackTop, Carousel, Dropdown, message, Tooltip } from "antd";
 import { UserOutlined, LaptopOutlined, ShoppingCartOutlined, MenuFoldOutlined, ShoppingOutlined, MenuUnfoldOutlined, SoundOutlined, DesktopOutlined, HeartTwoTone, SettingOutlined } from "@ant-design/icons";
 import MessengerCustomerChat from 'react-messenger-customer-chat';
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import FooterWeb from "./footer";
 
 import { userState } from "../store/userState";
 import apiService from "../utils/api/apiService";
 import { categoryState } from "../store/categoryState";
+import { orderState } from "../store/orderState";
 
 const { Header, Footer, Content, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -21,6 +22,7 @@ export default function DefaultLayout({ children }) {
   const [isLogin, setIsLogin] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [categories, setCategories] = useRecoilState(categoryState);
+  const [orders, setOrders] = useRecoilState(orderState);
   const [current, setCurrent] = useState('');
   const onCollapse = () => {
     setCollapsed(!collapsed);
@@ -96,7 +98,14 @@ export default function DefaultLayout({ children }) {
     getCategories();
   }, []);
 
-
+  useEffect(() => {
+    const storage = JSON.parse(localStorage.getItem('orders'));
+    if (storage && storage.length !== 0 && orders.length === 0) {
+      setOrders(storage)
+    } else if (orders.length !== 0) {
+      localStorage.setItem('orders', JSON.stringify(orders));
+    }
+  }, [orders])
   const menu = (
     <Menu inlineCollapsed="false">
       <Menu.Item key="0" disabled>
@@ -155,8 +164,8 @@ export default function DefaultLayout({ children }) {
           </div>
           <div className="flex space-x-5 items-center justify-items-center" >
             <Tooltip placement="bottom" title="Giỏ hàng">
-              <Badge count={0} size="small" style={{ background: "yellow", color: "black" }}>
-                <ShoppingCartOutlined onClick={() => Router.push('/cart')} style={{ color: "white", fontSize: 24, cursor: "pointer" }} />
+              <Badge count={orders.length}  size="small" style={{ background: "yellow", color: "black" }}>
+                <ShoppingCartOutlined onClick={() => Router.push('/quickorder')} style={{ color: "white", fontSize: 24, cursor: "pointer" }} />
               </Badge>
             </Tooltip>
 

@@ -78,7 +78,33 @@ module.exports.getDetailProduct = async (req, res, next) => {
 
     result.link = JSON.parse(result.link);
 
-    res.status(200).json(result);
+    const table =
+      result.type_id === "0b1d7d2a-e2de-4759-be5d-610dd17897d7"
+        ? "hdd"
+        : result.type_id === "c58910ab-26d6-4ccd-b8df-5ea5a9980b0c"
+        ? "laptop"
+        : result.type_id === "a92d6815-53ac-4bac-9900-8ba13436e35c"
+        ? "monitor"
+        : result.type_id === "2bb3e514-6c54-404d-a909-8d0957985f21"
+        ? "ssd"
+        : result.type_id === "6485a3a1-4765-4e0c-8ed0-da63aee84884"
+        ? "vga"
+        : result.type_id === "c6da6acd-699b-4d95-af99-e5b4c867db52"
+        ? "cable"
+        : result.type_id === "fcbea18f-8da2-4650-a4c3-9641ee8d927a"
+        ? "keyboard"
+        : result.type_id === "7dd3a2eb-972e-428a-b5b9-d41043462dc3"
+        ? "mouse"
+        : "pad";
+
+    const resultDetail = await db.getFirstResult(
+      `select * from ${table} where product_id = $1`,
+      [req.query.product_id]
+    );
+
+    const response = { ...result, ...resultDetail };
+
+    res.status(200).json(response);
   } catch (e) {
     console.log(e.message);
     return res.status(400).json({ message: e.message });

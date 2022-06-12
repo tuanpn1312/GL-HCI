@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Carousel, Button, Rate, Tag } from "antd";
+import { Typography, Carousel, Button, Rate, Tag,List } from "antd";
 const { Text, Title, Link } = Typography;
 import { FireOutlined, BorderOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import numberFormat from "../../../utils/modules/numberFormat";
 
-export default function Body1Detail({ product, description }) {
+export default function Body1Detail({ addToCart, product, description }) {
+
+    const [detail, setDetail] = useState([])
+    useEffect(() => {
+      const { status, image_detail, ...rest } = description
+      const asArray = Object.entries(rest);
+      const filtered = asArray.filter(([key, value]) => {
+        if (key.includes('id')) return false;
+        return true;
+      });
+      console.log(filtered);
+      setDetail(filtered)
+      // const justStrings = Object.fromEntries(filtered);
+    }, [description])
 
     return (
         <div className="flex items-center justify-center">
@@ -29,6 +42,16 @@ export default function Body1Detail({ product, description }) {
                     <Title level={3}>{product.name}</Title>
                     <Rate disabled allowHalf defaultValue={product.amount_star} />
                     <div className="flex flex-col space-y-3">
+                    <Tag className="text-sm p-5 " color="#f9f9f9">
+                        <List >
+                           {detail.slice(1,6).map(([key, value]) =>
+                            <List.Item>
+                            <p style={{width: "200px",hyphens: 'auto',}} className=" text-left  break-words "><b>{(key.replaceAll('_', ' ').toUpperCase())}: </b>{value}</p>
+                            </List.Item>
+                            )}
+                      </List>
+                      
+                        </Tag>
                         <Tag className="text-lg" color="gold">
                             <div>
                                 Bảo hành chính hãng {product.warranty}
@@ -48,7 +71,7 @@ export default function Body1Detail({ product, description }) {
 
                     </div>
                     <div>
-                        <Button danger type="primary" className="rounded-lg">
+                        <Button onClick={() => addToCart(product)} danger type="primary" className="rounded-lg">
                             Thêm vào giỏ hàng
                         </Button>
                     </div>
